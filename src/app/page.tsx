@@ -1,4 +1,4 @@
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 export default function Home() {
   return (
     <main className="min-h-screen bg-gray-100 text-gray-700">
@@ -69,8 +69,8 @@ export default function Home() {
       {/* Rodapé */}
       <footer className="text-center py-6 text-sm text-gray-500">
         <p className="italic mb-2 text-gray-600">
-          "Os planos bem elaborados levam à fartura; mas o apressado sempre
-          acaba na miséria." – Provérbios 21:5
+          &quot;Os planos bem elaborados levam à fartura; mas o apressado sempre
+          acaba na miséria.&quot; – Provérbios 21:5
         </p>
         <p>
           © {new Date().getFullYear()} PlayDelivery. Todos os direitos
