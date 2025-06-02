@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 export default function PainelPage() {
@@ -7,7 +8,6 @@ export default function PainelPage() {
       <aside className="w-64 bg-white shadow-md border-r border-gray-200 flex flex-col">
         <div className="h-20 flex items-center justify-center border-b border-gray-200">
           <img src="/logo.png" alt="Logo" className="w-10 h-10 mr-2" />
-          <span className="text-xl font-bold text-blue-600">PlayDelivery</span>
         </div>
         <nav className="flex-1 px-4 py-6 space-y-4 text-sm">
           <a href="/painel" className="block text-blue-600 font-semibold hover:underline">
