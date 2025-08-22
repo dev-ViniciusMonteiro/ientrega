@@ -1,66 +1,111 @@
 'use client';
 
 import { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 
-export default function LoginPage() {
+export default function Login() {
   const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [erro, setErro] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErro('');
+    setLoading(true);
+    
     try {
-      await signInWithEmailAndPassword(auth, email, senha);
-      router.push('/painel');
-    } catch (err) {
-      console.error(err);
-      setErro('E-mail ou senha inválidos.');
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        switch (data.user.role) {
+          case 'store':
+            router.push('/dashboard/loja');
+            break;
+          case 'courier':
+            router.push('/dashboard/motoboy');
+            break;
+          case 'admin':
+            router.push('/dashboard/admin');
+            break;
+          default:
+            router.push('/dashboard');
+        }
+      } else {
+        alert(data.error || 'Erro no login');
+      }
+    } catch (error) {
+      alert('Erro no login');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 flex items-center justify-center px-4 text-gray-800">
-      <div className="bg-white shadow rounded-xl p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-blue-600 mb-6 text-center">Login</h1>
-
-        {erro && <p className="text-red-500 text-sm mb-4 text-center">{erro}</p>}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm mb-1">E-mail</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md"
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Entrar na sua conta
+          </h2>
+          <div className="mt-4 text-center space-x-4">
+            <a
+              href="/register/loja"
+              className="text-sm font-medium text-blue-600 hover:underline"
+            >
+              Cadastrar Loja
+            </a>
+            <a
+              href="/register/motoboy"
+              className="text-sm font-medium text-blue-600 hover:underline"
+            >
+              Cadastrar Motoboy
+            </a>
+          </div>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                required
+              />
+            </div>
+            <div>
+              <input
+                type="password"
+                placeholder="Senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                required
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Senha</label>
-            <input
-              type="password"
-              required
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md"
-            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            >
+              {loading ? 'Entrando...' : 'Entrar'}
+            </button>
           </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md"
-          >
-            Entrar
-          </button>
         </form>
       </div>
-    </main>
+    </div>
   );
 }
